@@ -1,8 +1,0 @@
-{
-  "project": "brasileirao-data-platform",
-  "location": "US",
-  "dataset": "ds_gold",
-  "cache_ttl_seconds": 3600,
-  "maximum_bytes_billed": 1000000000,
-  "data_mode": "csv"
-}
