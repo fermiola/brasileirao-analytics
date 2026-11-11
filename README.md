@@ -1,30 +1,152 @@
-# Brasileirão Analytics | Dashboard interativo
+# Brasileirão Analytics | Plataforma de Dados e Dashboard
 
-Dashboard Streamlit com quatro páginas: Classificação, Mandante x Visitante, Evolução por rodada e Forma recente. Fonte original: BigQuery Gold.
+[![Python](https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![BigQuery](https://img.shields.io/badge/Google_Cloud-BigQuery-4285F4?logo=googlecloud&logoColor=white)](https://cloud.google.com/bigquery)
+[![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 
-## Preparar a publicação (no seu Windows)
+**Projeto de Engenharia de Dados e Analytics aplicado ao Campeonato Brasileiro**, integrando ingestão e tratamento de dados com Python, modelagem analítica no Google BigQuery, verificações de qualidade e visualização interativa no Streamlit.
 
-1. Extraia este ZIP para uma nova pasta. **Não substitua o projeto local que já funciona.**
-2. Abra o Google Cloud SDK Shell na pasta extraída, com seu ambiente Python 3.13 ativado.
-3. Instale as dependências: `python -m pip install -r requirements.txt`.
-4. Autentique localmente: `gcloud auth application-default login` (caso necessário).
-5. Exporte as quatro tabelas: `python exportar_gold.py`.
-6. Confirme que `data/` contém quatro CSVs, com dados corretos e próprios para divulgação.
-7. Teste a aplicação: `python -m streamlit run app.py`.
-8. Crie um repositório GitHub e envie `app.py`, `config.json`, `requirements.txt`, `README.md`, `.gitignore` e a pasta `data/` com os CSVs. **Não envie `.venv`, tokens ou credenciais.**
-9. Em https://share.streamlit.io/ crie o app apontando para seu repositório e arquivo `app.py`.
-10. Compartilhe a URL do app no LinkedIn.
+**[Acessar o dashboard](https://brasileirao-analytics-2026.streamlit.app/)** · **[Explorar o repositório](https://github.com/fermiola/brasileirao-analytics)** · **[Documentação técnica da plataforma](data-platform/README.md)**
 
-## Modos de dados
+> O dashboard público utiliza snapshots CSV gerados a partir da camada Gold. Assim, a navegação dos visitantes não exige consultas ao BigQuery.
 
-- `config.json` com `"data_mode": "csv"`: lê `data/tb_*.csv` e não consulta GCP em acessos públicos.
-- `"data_mode": "bigquery"`: consulta BigQuery usando credenciais disponíveis no ambiente (adequado para uso local).
-- Pode sobrescrever com variável de ambiente `DATA_MODE=bigquery` ou `DATA_MODE=csv`.
+## Visão geral
 
-## Atualização
+A solução separa o processamento dos dados da camada de apresentação. Os frameworks de engenharia de dados ficam em `data-platform/`; o aplicativo Streamlit apresenta os indicadores ao usuário final.
 
-Quando atualizar a Gold, execute novamente `python exportar_gold.py` localmente, revise os CSVs e faça commit/push das atualizações para o GitHub. O dashboard público passa a ler o novo snapshot após a atualização/reinicialização do app.
+### Arquitetura
 
-## Segurança e custos
+```mermaid
+flowchart TD
+    A[Planilha Excel de partidas] --> B[Python: Framework Bronze]
+    B --> C[(BigQuery: ds_bronze)]
+    C --> D[Python + SQL: Framework Silver]
+    D --> E[(BigQuery: ds_silver)]
+    E --> F[Python + SQL: Framework Gold]
+    F --> G[(BigQuery: ds_gold)]
+    G --> H[Exportação de snapshots CSV]
+    H --> I[Dashboard Streamlit]
+    J[Orquestrador Geral] -. coordena .-> B
+    J -. coordena .-> D
+    J -. coordena .-> F
+    J -. executa .-> K[Framework Data Quality]
+    K -. verifica .-> E
+    K -. verifica .-> G
+    J -. registra execução .-> L[(BigQuery: ds_control)]
+    K -. registra auditoria .-> L
+```
 
-Não inclua chaves de serviço nem tokens no GitHub. O modo CSV não realiza consultas BigQuery no servidor público. A exportação local **realiza consultas BigQuery**, que podem ter cobrança conforme seu plano e limites. Os CSVs serão públicos no repositório: revise antes de publicar. Hospedagem gratuita depende das condições do provedor.
+### Camadas da plataforma
+
+| Componente | Responsabilidade |
+| --- | --- |
+| **Bronze** | Ingestão dos dados de origem e controle de reprocessamento de arquivos idênticos |
+| **Silver** | Padronização, tipagem e consolidação das partidas, com lógica de `MERGE` |
+| **Gold** | Geração das tabelas analíticas utilizadas nos indicadores |
+| **Data Quality** | Execução de regras de qualidade e registro dos resultados de auditoria |
+| **Orquestrador Geral** | Execução sequencial dos frameworks e registro de status das etapas |
+| **Streamlit** | Exploração visual dos dados analíticos |
+
+## Dashboard interativo
+
+O aplicativo disponibiliza quatro visões:
+
+1. **Classificação:** acompanhamento da tabela do campeonato.
+2. **Mandante x Visitante:** comparação do desempenho dos clubes em casa e fora.
+3. **Evolução por rodada:** análise da trajetória dos indicadores ao longo do campeonato.
+4. **Forma recente:** visualização do desempenho nas partidas mais recentes.
+
+**Dashboard:** https://brasileirao-analytics-2026.streamlit.app/
+
+## Modelo analítico no BigQuery
+
+A camada Gold disponibiliza quatro tabelas:
+
+| Tabela | Conteúdo |
+| --- | --- |
+| `ds_gold.tb_classificacao` | Classificação dos clubes |
+| `ds_gold.tb_desempenho_clube` | Indicadores por clube e condição de mando |
+| `ds_gold.tb_estatisticas_rodada` | Indicadores organizados por rodada |
+| `ds_gold.tb_forma_recente` | Forma recente dos clubes |
+
+Os datasets de controle e auditoria ficam em `ds_control`. O processamento é realizado no projeto GCP configurado para a plataforma; para executar em outro ambiente, revise os arquivos de configuração.
+
+## Estrutura do repositório
+
+```text
+brasileirao-analytics/
+├── app.py                      # Aplicação Streamlit
+├── config.json                 # Modo de leitura do dashboard
+├── requirements.txt            # Dependências do dashboard
+├── exportar_gold.py            # Exportação local da Gold, quando presente
+├── data/                       # Snapshots CSV publicados
+├── data-platform/
+│   ├── README.md               # Guia técnico da plataforma
+│   ├── requirements.txt        # Dependências consolidadas do pipeline
+│   ├── framework_bronze_generico/
+│   ├── framework_silver/
+│   ├── framework_gold/
+│   ├── framework_data_quality/
+│   ├── Orquestrador_Geral/
+│   └── sql_setup/
+└── README.md                   # Esta apresentação
+```
+
+> A árvore mostra a organização proposta. Confirme os arquivos efetivamente enviados ao GitHub; `exportar_gold.py` é utilizado na rotina de exportação local.
+
+## Como executar o dashboard localmente
+
+Pré-requisito: Python compatível com as dependências do projeto.
+
+```powershell
+python -m venv .venv
+.venv\Scripts\activate
+python -m pip install -r requirements.txt
+python -m streamlit run app.py
+```
+
+No `config.json`, utilize `"data_mode": "csv"` para ler os arquivos de `data/` sem consultar o BigQuery. O projeto também prevê `"data_mode": "bigquery"` para execução em ambiente autenticado; o modo pode ser sobrescrito por `DATA_MODE`.
+
+## Como executar a plataforma de dados
+
+Para reproduzir o pipeline, são necessários um projeto Google Cloud com BigQuery habilitado, permissões apropriadas, autenticação local e configurações ajustadas ao ambiente.
+
+```powershell
+cd data-platform
+python -m pip install -r requirements.txt
+cd Orquestrador_Geral
+python orquestrador_pipeline.py --validar
+```
+
+O comando `--validar` verifica a configuração local sem executar o pipeline no GCP. Para processamento real, consulte primeiro o [guia técnico da plataforma](data-platform/README.md), incluindo provisionamento dos datasets, autenticação e custos. A execução completa utiliza `--all`.
+
+## Atualização dos dados
+
+O dashboard publicado consome snapshots CSV. Após atualizar a camada Gold:
+
+1. Execute localmente a exportação (`python exportar_gold.py`, no projeto do dashboard, quando disponível).
+2. Revise os CSVs gerados em `data/` e verifique se podem ser publicados.
+3. Atualize os arquivos no GitHub para refletir os novos dados no aplicativo.
+
+**Importante:** o modo CSV evita consultas ao BigQuery durante o acesso público, mas a execução do pipeline e a exportação local podem consumir recursos cobrados do Google Cloud.
+
+## Qualidade, rastreabilidade e boas práticas
+
+- Separação das responsabilidades de ingestão, tratamento, modelagem e apresentação.
+- Regras de qualidade para chaves, campos obrigatórios, status, placares e disponibilidade das tabelas Gold.
+- Registro de execuções e auditorias no dataset de controle.
+- Configurações externalizadas em arquivos JSON.
+- Proteção contra reingestão desnecessária de arquivos idênticos na Bronze.
+- Execução do pipeline desacoplada do acesso público ao dashboard.
+
+## Segurança e publicação
+
+Não publique `.venv/`, chaves de serviço, tokens, credenciais ou arquivos `.env`. Revise os JSONs antes de enviá-los. Os CSVs da pasta `data/` e quaisquer planilhas incluídas no repositório tornam-se acessíveis publicamente. O `.gitignore` não impede o envio manual de arquivos pela interface do GitHub.
+
+## Documentação
+
+A documentação operacional completa — instalação do Google Cloud CLI/SDK Shell, autenticação, configurações, scripts SQL, execução e validações — está em **[data-platform/README.md](data-platform/README.md)**.
+
+---
+
+*Projeto de portfólio para demonstrar práticas de Engenharia de Dados, Analytics e desenvolvimento Python aplicadas a dados de futebol.*
