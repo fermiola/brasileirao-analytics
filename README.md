@@ -1,12 +1,12 @@
 # Brasileirão Analytics | Plataforma de Dados e Dashboard
 
-[![Python](https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![BigQuery](https://img.shields.io/badge/Google_Cloud-BigQuery-4285F4?logo=googlecloud&logoColor=white)](https://cloud.google.com/bigquery)
 [![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 
 **Projeto de Engenharia de Dados e Analytics aplicado ao Campeonato Brasileiro**, integrando ingestão e tratamento de dados com Python, modelagem analítica no Google BigQuery, verificações de qualidade e visualização interativa no Streamlit.
 
-**[Acessar o dashboard](https://brasileirao-analytics-2026.streamlit.app/)** · **[Explorar o repositório](https://github.com/fermiola/brasileirao-analytics)** · **[Documentação técnica da plataforma](data-platform/README.md)**
+**[Acessar o dashboard](https://brasileirao-data-analytics.streamlit.app/)** · **[Explorar o repositório](https://github.com/fermiola/brasileirao-analytics)** · **[Documentação técnica da plataforma](data-platform/README.md)**
 
 > O dashboard público utiliza snapshots CSV gerados a partir da camada Gold. Assim, a navegação dos visitantes não exige consultas ao BigQuery.
 
@@ -56,7 +56,7 @@ O aplicativo disponibiliza quatro visões:
 3. **Evolução por rodada:** análise da trajetória dos indicadores ao longo do campeonato.
 4. **Forma recente:** visualização do desempenho nas partidas mais recentes.
 
-**Dashboard:** https://brasileirao-analytics-2026.streamlit.app/
+**Dashboard:** https://brasileirao-data-analytics.streamlit.app/
 
 ## Modelo analítico no BigQuery
 
@@ -75,37 +75,41 @@ Os datasets de controle e auditoria ficam em `ds_control`. O processamento é re
 
 ```text
 brasileirao-analytics/
-├── app.py                      # Aplicação Streamlit
-├── config.json                 # Modo de leitura do dashboard
-├── requirements.txt            # Dependências do dashboard
-├── exportar_gold.py            # Exportação local da Gold, quando presente
-├── data/                       # Snapshots CSV publicados
+├── dashboard/
+│   ├── app.py                   # Aplicação Streamlit
+│   ├── config.json              # Configuração de leitura
+│   ├── exportar_gold.py         # Exportação local da Gold
+│   ├── requirements.txt         # Dependências do dashboard
+│   ├── data/                    # Quatro snapshots CSV
+│   └── README.md                # Guia do dashboard
 ├── data-platform/
-│   ├── README.md               # Guia técnico da plataforma
-│   ├── requirements.txt        # Dependências consolidadas do pipeline
+│   ├── README.md                # Guia técnico da plataforma
+│   ├── requirements.txt         # Dependências consolidadas
 │   ├── framework_bronze_generico/
 │   ├── framework_silver/
 │   ├── framework_gold/
 │   ├── framework_data_quality/
 │   ├── Orquestrador_Geral/
 │   └── sql_setup/
-└── README.md                   # Esta apresentação
+├── .gitignore
+└── README.md                    # Visão geral do projeto
 ```
-
-> A árvore mostra a organização proposta. Confirme os arquivos efetivamente enviados ao GitHub; `exportar_gold.py` é utilizado na rotina de exportação local.
 
 ## Como executar o dashboard localmente
 
-Pré-requisito: Python compatível com as dependências do projeto.
+Acesse a pasta `dashboard/`, onde estão o `app.py`, as dependências e os CSVs. Para usar o modo CSV, não é necessário autenticar no Google Cloud.
 
 ```powershell
+cd dashboard
 python -m venv .venv
-.venv\Scripts\activate
+.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
 python -m streamlit run app.py
 ```
 
-No `config.json`, utilize `"data_mode": "csv"` para ler os arquivos de `data/` sem consultar o BigQuery. O projeto também prevê `"data_mode": "bigquery"` para execução em ambiente autenticado; o modo pode ser sobrescrito por `DATA_MODE`.
+Se usar Google Cloud SDK Shell ou outro terminal com ambiente virtual já ativado, não precisa criar outro. Em `dashboard/config.json`, `"data_mode": "csv"` utiliza os snapshots locais. Consulte o [guia do dashboard](dashboard/README.md) para exportação e modo BigQuery.
+
+**Aplicativo publicado:** [Brasileirão Data Analytics](https://brasileirao-data-analytics.streamlit.app/) — arquivo principal `dashboard/app.py` na branch `main`.
 
 ## Como executar a plataforma de dados
 
@@ -124,8 +128,8 @@ O comando `--validar` verifica a configuração local sem executar o pipeline no
 
 O dashboard publicado consome snapshots CSV. Após atualizar a camada Gold:
 
-1. Execute localmente a exportação (`python exportar_gold.py`, no projeto do dashboard, quando disponível).
-2. Revise os CSVs gerados em `data/` e verifique se podem ser publicados.
+1. Na pasta `dashboard/`, execute localmente `python exportar_gold.py` com autenticação e permissões BigQuery configuradas.
+2. Revise os CSVs gerados em `dashboard/data/` e verifique se podem ser publicados.
 3. Atualize os arquivos no GitHub para refletir os novos dados no aplicativo.
 
 **Importante:** o modo CSV evita consultas ao BigQuery durante o acesso público, mas a execução do pipeline e a exportação local podem consumir recursos cobrados do Google Cloud.
@@ -141,11 +145,11 @@ O dashboard publicado consome snapshots CSV. Após atualizar a camada Gold:
 
 ## Segurança e publicação
 
-Não publique `.venv/`, chaves de serviço, tokens, credenciais ou arquivos `.env`. Revise os JSONs antes de enviá-los. Os CSVs da pasta `data/` e quaisquer planilhas incluídas no repositório tornam-se acessíveis publicamente. O `.gitignore` não impede o envio manual de arquivos pela interface do GitHub.
+Não publique `.venv/`, chaves de serviço, tokens, credenciais ou arquivos `.env`. Revise os JSONs antes de enviá-los. Os CSVs da pasta `dashboard/data/` e quaisquer planilhas incluídas no repositório tornam-se acessíveis publicamente. O `.gitignore` não impede o envio manual de arquivos pela interface do GitHub.
 
 ## Documentação
 
-A documentação operacional completa — instalação do Google Cloud CLI/SDK Shell, autenticação, configurações, scripts SQL, execução e validações — está em **[data-platform/README.md](data-platform/README.md)**.
+O [guia do dashboard](dashboard/README.md) detalha a aplicação Streamlit. A documentação operacional completa — instalação do Google Cloud CLI/SDK Shell, autenticação, configurações, scripts SQL, execução e validações — está em **[data-platform/README.md](data-platform/README.md)**.
 
 ---
 
