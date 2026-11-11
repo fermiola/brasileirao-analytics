@@ -2,18 +2,43 @@
 
 Dashboard Streamlit com quatro páginas: Classificação, Mandante x Visitante, Evolução por rodada e Forma recente. Fonte original: BigQuery Gold.
 
-## Preparar a publicação (no seu Windows)
+**Aplicativo público:** https://brasileirao-data-analytics.streamlit.app/  
+**Código-fonte:** https://github.com/fermiola/brasileirao-analytics/tree/main/dashboard
 
-1. Extraia este ZIP para uma nova pasta. **Não substitua o projeto local que já funciona.**
-2. Abra o Google Cloud SDK Shell na pasta extraída, com seu ambiente Python 3.13 ativado.
-3. Instale as dependências: `python -m pip install -r requirements.txt`.
-4. Autentique localmente: `gcloud auth application-default login` (caso necessário).
-5. Exporte as quatro tabelas: `python exportar_gold.py`.
-6. Confirme que `data/` contém quatro CSVs, com dados corretos e próprios para divulgação.
-7. Teste a aplicação: `python -m streamlit run app.py`.
-8. No repositório existente `brasileirao-analytics`, publique a pasta `dashboard/` contendo `app.py`, `config.json`, `requirements.txt`, `README.md`, `.gitignore` e a pasta `data/` com os CSVs. **Não envie `.venv`, tokens ou credenciais.**
-9. No Streamlit Community Cloud, edite as configurações do aplicativo existente e altere o caminho do arquivo principal de `app.py` para `dashboard/app.py`. Confirme que a implantação terminou antes de remover os arquivos antigos da raiz.
-10. Compartilhe a URL do app no LinkedIn.
+## Estrutura do dashboard
+
+```text
+dashboard/
+├── app.py
+├── config.json
+├── exportar_gold.py
+├── requirements.txt
+├── data/
+│   ├── tb_classificacao.csv
+│   ├── tb_desempenho_clube.csv
+│   ├── tb_estatisticas_rodada.csv
+│   └── tb_forma_recente.csv
+└── README.md
+```
+
+## Executar localmente (Windows)
+
+Abra um terminal na pasta `dashboard/` e execute:
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python -m streamlit run app.py
+```
+
+Se já tiver um ambiente virtual ativado, use-o em vez de criar outro. No modo CSV, não é necessária autenticação no Google Cloud.
+
+## Implantação no Streamlit Community Cloud
+
+O aplicativo definitivo utiliza o repositório `fermiola/brasileirao-analytics`, branch `main` e arquivo principal `dashboard/app.py`. O endereço público é https://brasileirao-data-analytics.streamlit.app/.
+
+A aplicação lê os snapshots de `dashboard/data/`. Não é necessário executar `exportar_gold.py` no Streamlit Cloud. Não publique credenciais ou arquivos `.env`.
 
 ## Modos de dados
 
@@ -23,7 +48,7 @@ Dashboard Streamlit com quatro páginas: Classificação, Mandante x Visitante, 
 
 ## Atualização
 
-Quando atualizar a Gold, execute novamente `python exportar_gold.py` localmente, revise os CSVs e faça commit/push das atualizações para o GitHub. O dashboard público passa a ler o novo snapshot após a atualização/reinicialização do app.
+Quando atualizar a Gold, entre na pasta `dashboard/`, autentique-se localmente no GCP se necessário (`gcloud auth application-default login`) e execute `python exportar_gold.py`, revise os CSVs e faça commit/push das atualizações para o GitHub. O dashboard público passa a ler o novo snapshot após o próximo carregamento dos dados ou a expiração do cache (configurado em 3600 segundos).
 
 ## Segurança e custos
 
@@ -31,4 +56,4 @@ Não inclua chaves de serviço nem tokens no GitHub. O modo CSV não realiza con
 
 ## Organização no repositório
 
-Este diretório deve ficar em `brasileirao-analytics/dashboard/`. Os CSVs ficam em `dashboard/data/`; `app.py` e `exportar_gold.py` usam caminhos relativos e não exigem mudança de código. Execute os comandos a partir da pasta `dashboard/`.
+Este diretório fica em `brasileirao-analytics/dashboard/`. Os CSVs ficam em `dashboard/data/`; `app.py` e `exportar_gold.py` usam caminhos relativos e não exigem mudança de código. Execute os comandos a partir da pasta `dashboard/`.
