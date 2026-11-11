@@ -1,0 +1,14 @@
+{
+  "gcp": {"project": "brasileirao-data-platform", "location": "US"},
+  "audit_table": "brasileirao-data-platform.ds_control.tb_data_quality",
+  "rules": [
+    {"name": "silver_chaves_duplicadas", "enabled": true, "critical": true, "sql_file": "sql/silver_chaves_duplicadas.sql"},
+    {"name": "silver_campos_obrigatorios", "enabled": true, "critical": true, "sql_file": "sql/silver_campos_obrigatorios.sql"},
+    {"name": "silver_status_invalidos", "enabled": true, "critical": true, "sql_file": "sql/silver_status_invalidos.sql"},
+    {"name": "silver_placares_inconsistentes", "enabled": true, "critical": true, "sql_file": "sql/silver_placares_inconsistentes.sql"},
+    {"name": "gold_classificacao_vazia", "enabled": true, "critical": true, "sql_file": "sql/gold_classificacao_vazia.sql"},
+    {"name": "gold_desempenho_vazio", "enabled": true, "critical": true, "sql_file": "sql/gold_desempenho_vazio.sql"},
+    {"name": "gold_rodada_vazia", "enabled": true, "critical": true, "sql_file": "sql/gold_rodada_vazia.sql"},
+    {"name": "gold_forma_recente_vazia", "enabled": true, "critical": true, "sql_file": "sql/gold_forma_recente_vazia.sql"}
+  ]
+}

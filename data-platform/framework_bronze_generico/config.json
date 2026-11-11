@@ -1,0 +1,72 @@
+{
+  "jobs": [
+    {
+      "name": "partidas",
+      "source": {
+        "path": "Brasileirao_Dados.xlsx",
+        "format": "xlsx",
+        "sheet": "Partidas",
+        "header_row": 1
+      },
+      "destination": {
+        "project": "brasileirao-data-platform",
+        "dataset": "ds_bronze",
+        "table": "tb_partidas",
+        "location": "US",
+        "write_disposition": "WRITE_APPEND",
+        "partitioning": {
+          "enabled": true,
+          "type": "DAY",
+          "field": "dt_ingestao",
+          "require_partition_filter": false
+        }
+      },
+      "audit": {
+        "enabled": true
+      },
+      "skip_if_same_file": true,
+      "columns": [
+        {
+          "source": "temporada",
+          "name": "temporada",
+          "type": "STRING"
+        },
+        {
+          "source": "rodada",
+          "name": "rodada",
+          "type": "STRING"
+        },
+        {
+          "source": "data",
+          "name": "data",
+          "type": "STRING"
+        },
+        {
+          "source": "mandante",
+          "name": "mandante",
+          "type": "STRING"
+        },
+        {
+          "source": "visitante",
+          "name": "visitante",
+          "type": "STRING"
+        },
+        {
+          "source": "gols_mandante",
+          "name": "gols_mandante",
+          "type": "STRING"
+        },
+        {
+          "source": "gols_visitante",
+          "name": "gols_visitante",
+          "type": "STRING"
+        },
+        {
+          "source": "status",
+          "name": "status",
+          "type": "STRING"
+        }
+      ]
+    }
+  ]
+}

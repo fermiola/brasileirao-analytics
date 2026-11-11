@@ -1,0 +1,6 @@
+# Dependências consolidadas dos cinco frameworks da plataforma.
+# Compatíveis com os requirements individuais Bronze, Silver e Gold.
+google-cloud-bigquery>=3.11,<4
+openpyxl>=3.0,<4
+# Importação direta utilizada no framework Silver.
+google-api-core>=2,<3

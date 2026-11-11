@@ -1,0 +1,25 @@
+{
+  "stages": {
+    "bronze": {
+      "script": "../framework_bronze_generico/ingestao_bronze.py",
+      "config": "../framework_bronze_generico/config.json"
+    },
+    "silver": {
+      "script": "../framework_silver/orquestrador_silver.py",
+      "config": "../framework_silver/config.json"
+    },
+    "gold": {
+      "script": "../framework_gold/orquestrador_gold.py",
+      "config": "../framework_gold/config.json"
+    },
+    "data_quality": {
+      "script": "../framework_data_quality/data_quality.py",
+      "config": "../framework_data_quality/config.json"
+    }
+  },
+  "observability": {
+    "enabled": true,
+    "table": "brasileirao-data-platform.ds_control.tb_execucoes_pipeline",
+    "location": "US"
+  }
+}

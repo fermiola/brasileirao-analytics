@@ -1,0 +1,32 @@
+{
+  "gcp": {
+    "project": "brasileirao-data-platform",
+    "location": "US",
+    "procedure": "brasileirao-data-platform.ds_control.sp_merge_generico"
+  },
+  "jobs": [
+    {
+      "name": "partidas_silver",
+      "enabled": true,
+      "source": "brasileirao-data-platform.ds_bronze.tb_partidas",
+      "target": "brasileirao-data-platform.ds_silver.tb_partidas",
+      "strategy": "MERGE",
+      "keys": ["temporada", "rodada", "mandante", "visitante"],
+      "order_by": "dt_ingestao",
+      "columns": [
+        {"name": "temporada", "type": "INT64", "required": true},
+        {"name": "rodada", "type": "INT64", "required": true},
+        {"name": "data", "type": "DATE", "format": "%Y-%m-%d"},
+        {"name": "mandante", "type": "STRING", "required": true},
+        {"name": "visitante", "type": "STRING", "required": true},
+        {"name": "gols_mandante", "type": "INT64"},
+        {"name": "gols_visitante", "type": "INT64"},
+        {"name": "status", "type": "STRING"},
+        {"name": "id_execucao", "type": "STRING"},
+        {"name": "arquivo_origem", "type": "STRING"},
+        {"name": "hash_arquivo", "type": "STRING"},
+        {"name": "dt_ingestao", "type": "TIMESTAMP", "required": true}
+      ]
+    }
+  ]
+}

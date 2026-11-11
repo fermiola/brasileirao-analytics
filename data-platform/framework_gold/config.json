@@ -1,0 +1,46 @@
+{
+  "gcp": {
+    "project": "brasileirao-data-platform",
+    "location": "US"
+  },
+  "jobs": [
+    {
+      "name": "classificacao",
+      "enabled": true,
+      "source": "brasileirao-data-platform.ds_silver.tb_partidas",
+      "target": "brasileirao-data-platform.ds_gold.tb_classificacao",
+      "sql_file": "sql/classificacao.sql",
+      "strategy": "REPLACE_ATOMIC",
+      "description": "Classificacao estatistica por temporada e clube; somente partidas Finalizado"
+    },
+    {
+      "name": "desempenho_clube",
+      "enabled": true,
+      "source": "brasileirao-data-platform.ds_silver.tb_partidas",
+      "target": "brasileirao-data-platform.ds_gold.tb_desempenho_clube",
+      "strategy": "REPLACE_ATOMIC",
+      "sql_file": "sql/desempenho_clube.sql"
+    },
+    {
+      "name": "estatisticas_rodada",
+      "enabled": true,
+      "source": "brasileirao-data-platform.ds_silver.tb_partidas",
+      "target": "brasileirao-data-platform.ds_gold.tb_estatisticas_rodada",
+      "sql_file": "sql/estatisticas_rodada.sql",
+      "strategy": "REPLACE_ATOMIC",
+      "description": "Estatisticas e evolucao da classificacao por rodada e clube"
+    },
+    {
+      "name": "forma_recente",
+      "enabled": true,
+      "source": "brasileirao-data-platform.ds_gold.tb_estatisticas_rodada",
+      "target": "brasileirao-data-platform.ds_gold.tb_forma_recente",
+      "sql_file": "sql/forma_recente.sql",
+      "strategy": "REPLACE_ATOMIC",
+      "description": "Indicadores dos ultimos cinco jogos finalizados por temporada e clube",
+      "depends_on": [
+        "estatisticas_rodada"
+      ]
+    }
+  ]
+}
