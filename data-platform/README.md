@@ -2,10 +2,10 @@
 
 Projeto de portfólio de Engenharia de Dados com **Python, Google Cloud BigQuery, arquitetura Medallion (Bronze → Silver → Gold), validação de qualidade, orquestração e dashboard Streamlit**.
 
-**Dashboard interativo:** https://brasileirao-analytics-2026.streamlit.app/  
+**Dashboard interativo:** https://brasileirao-data-analytics.streamlit.app/  
 **Repositório:** https://github.com/fermiola/brasileirao-analytics
 
-> **Escopo deste pacote:** este ZIP contém os cinco componentes de processamento (Bronze, Silver, Gold, Data Quality e Orquestrador Geral). **Não contém** `app.py`, `data/` ou `requirements.txt` do dashboard; esses arquivos pertencem à aplicação Streamlit já publicada. **Inclui** `framework_bronze_generico/Brasileirao_Dados.xlsx` como fonte de exemplo da versão recebida. Antes de publicar, confirme que você tem direito de distribuir seus dados. A execução do zero requer provisionar os datasets e a procedure descritos abaixo.
+> **Escopo deste pacote:** esta pasta contém os cinco componentes de processamento (Bronze, Silver, Gold, Data Quality e Orquestrador Geral). **Não contém** os arquivos do dashboard, que ficam em `../dashboard/` no repositório GitHub, com seu próprio `app.py`, `data/` e `requirements.txt`. **Inclui** `framework_bronze_generico/Brasileirao_Dados.xlsx` como fonte de exemplo da versão recebida. Antes de publicar, confirme que você tem direito de distribuir seus dados. A execução do zero requer provisionar os datasets e a procedure descritos abaixo.
 
 ## 1. Arquitetura e fluxo
 
