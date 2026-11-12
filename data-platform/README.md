@@ -5,7 +5,7 @@ Projeto de portfólio de Engenharia de Dados com **Python, Google Cloud BigQuery
 **Dashboard interativo:** https://brasileirao-data-analytics.streamlit.app/  
 **Repositório:** https://github.com/fermiola/brasileirao-analytics
 
-> **Escopo deste pacote:** esta pasta contém os cinco componentes de processamento (Bronze, Silver, Gold, Data Quality e Orquestrador Geral). **Não contém** os arquivos do dashboard, que ficam em `../dashboard/` no repositório GitHub, com seu próprio `app.py`, `data/` e `requirements.txt`. **Inclui** `framework_bronze_generico/Brasileirao_Dados.xlsx` como fonte de exemplo da versão recebida. Antes de publicar, confirme que você tem direito de distribuir seus dados. A execução do zero requer provisionar os datasets e a procedure descritos abaixo.
+> **Escopo desta pasta:** `data-platform/` reúne os cinco componentes de processamento (Bronze, Silver, Gold, Data Quality e Orquestrador Geral). A aplicação fica em [`../dashboard/`](../dashboard/), com `app.py`, `exportar_gold.py`, `requirements.txt` e snapshots em `data/`. A fonte Excel, quando presente em `framework_bronze_generico/`, deve ter sua autorização de redistribuição verificada. Uma instalação do zero exige provisionar os datasets e a procedure descritos abaixo.
 
 ## 1. Arquitetura e fluxo
 
@@ -167,7 +167,7 @@ O `framework_bronze_generico/config.json` atualmente define:
 }
 ```
 
-Portanto, **coloque `Brasileirao_Dados.xlsx` na pasta `framework_bronze_generico/`**, com a aba `Partidas` e as colunas esperadas, ou altere `source.path` para o caminho real do arquivo. O Excel **está incluído no ZIP**. Antes de publicá-lo em um repositório público, confira a origem e a autorização de distribuição dos dados.
+Portanto, **coloque `Brasileirao_Dados.xlsx` na pasta `framework_bronze_generico/`**, com a aba `Partidas` e as colunas esperadas, ou altere `source.path` para o caminho real do arquivo. Se o Excel estiver presente no seu checkout, confira sua origem e a autorização de distribuição antes de mantê-lo em um repositório público.
 
 Os JSONs fazem referência ao projeto `brasileirao-data-platform` e à região `US`. A configuração `Orquestrador_Geral/pipeline_config.json` utiliza **caminhos relativos**, por exemplo `../framework_gold/orquestrador_gold.py`. Preserve a disposição das pastas para que a resolução funcione.
 
@@ -267,53 +267,60 @@ LIMIT 30;
 
 As regras atuais verificam chaves duplicadas, campos obrigatórios, status, placares e tabelas Gold vazias. **`PASS`** indica zero violações para a regra; **`FAIL`**, violações encontradas; **`ERROR`**, falha técnica na regra. Regras críticas podem interromper o pipeline.
 
-## 8. Atualizar e publicar o dashboard
+## 8. Atualizar os dados do dashboard
 
-O Streamlit público foi configurado para ler **snapshots CSV da camada Gold**, evitando consultas ao BigQuery por visitantes. Os scripts de exportação e a aplicação Streamlit **não fazem parte deste ZIP**; utilize o projeto do dashboard existente.
+O aplicativo público em [Brasileirão Data Analytics](https://brasileirao-data-analytics.streamlit.app/) utiliza **snapshots CSV das tabelas Gold**, em vez de consultar o BigQuery a cada acesso. O código da aplicação e o exportador estão em [`../dashboard/`](../dashboard/).
 
-Fluxo de atualização:
+Fluxo de atualização, a partir da raiz do repositório:
 
-1. Execute o pipeline e valide as tabelas Gold.
-2. No projeto do dashboard, execute `python exportar_gold.py` com autenticação GCP local, conforme a documentação daquele projeto.
-3. Confira os quatro CSVs gerados em `data/`.
-4. Atualize a pasta `data/` do repositório GitHub; o Streamlit Community Cloud utilizará os novos snapshots após a atualização da aplicação.
+1. Execute o pipeline somente quando houver dados novos e valide as tabelas Gold.
+2. No seu ambiente local autenticado no GCP, entre na pasta `dashboard/` e execute `python exportar_gold.py`.
+3. Confira os **quatro CSVs** em `dashboard/data/`, incluindo consistência e autorização de publicação.
+4. Faça commit dos CSVs atualizados em `dashboard/data/` e envie as alterações ao GitHub.
+5. Abra o aplicativo público e verifique se os novos dados aparecem. O cache do Streamlit pode exigir aguardar ou acionar **Atualizar dados**.
 
-**Limitação:** a aplicação pública **não recebe atualizações automáticas** do BigQuery nesta arquitetura. Os snapshots precisam ser regenerados e publicados.
+**Limitação:** o dashboard público não sincroniza automaticamente com o BigQuery. O processo de exportar e publicar snapshots é manual nesta arquitetura. A exportação local consulta o BigQuery e pode gerar custos; a navegação pública em modo CSV não executa essas consultas.
 
-## 9. Estrutura do pacote
+## 9. Estrutura do repositório
 
 ```text
-brasileirao_frameworks_python_comentados/
-├── README.md                        # Este guia geral
-├── LEIA_ME.md                       # Notas complementares
-├── framework_bronze_generico/
-│   ├── ingestao_bronze.py
+brasileirao-analytics/
+├── README.md                         # Visão geral e links do portfólio
+├── .gitignore
+├── dashboard/
+│   ├── README.md                     # Documentação da aplicação
+│   ├── app.py
 │   ├── config.json
+│   ├── exportar_gold.py
 │   ├── requirements.txt
-│   ├── README.md
-│   └── sql/
-├── framework_silver/
-│   ├── orquestrador_silver.py
-│   ├── config.json
-│   ├── requirements.txt
-│   ├── README.md
-│   └── sql/
-├── framework_gold/
-│   ├── orquestrador_gold.py
-│   ├── config.json
-│   ├── requirements.txt
-│   ├── README.md
-│   └── sql/
-├── framework_data_quality/
-│   ├── data_quality.py
-│   ├── config.json
-│   ├── README.md
-│   └── sql/
-└── Orquestrador_Geral/
-    ├── orquestrador_pipeline.py
-    ├── pipeline_config.json
-    └── README.md
+│   └── data/                         # Quatro snapshots CSV
+└── data-platform/
+    ├── README.md                     # Este guia técnico
+    ├── requirements.txt              # Dependências consolidadas
+    ├── sql_setup/                    # Provisionamento BigQuery
+    ├── framework_bronze_generico/
+    │   ├── ingestao_bronze.py
+    │   ├── config.json
+    │   └── README.md
+    ├── framework_silver/
+    │   ├── orquestrador_silver.py
+    │   ├── config.json
+    │   └── README.md
+    ├── framework_gold/
+    │   ├── orquestrador_gold.py
+    │   ├── config.json
+    │   └── README.md
+    ├── framework_data_quality/
+    │   ├── data_quality.py
+    │   ├── config.json
+    │   └── README.md
+    └── Orquestrador_Geral/
+        ├── orquestrador_pipeline.py
+        ├── pipeline_config.json
+        └── README.md
 ```
+
+Os frameworks também incluem arquivos SQL, requisitos e regras específicas conforme documentado em suas respectivas pastas. O diretório `.devcontainer/`, quando presente, contém configurações auxiliares de desenvolvimento.
 
 ## 10. Segurança, custos e limitações
 
@@ -325,25 +332,25 @@ brasileirao_frameworks_python_comentados/
 - A classificação é estatística e seu desempate pode não reproduzir todos os critérios oficiais da competição.
 - O pipeline não faz rollback das camadas anteriores caso uma etapa posterior falhe.
 - A auditoria registra execução e duração, mas não calcula custo financeiro real nem contagem exata de linhas por etapa.
-- O pacote foi revisado estaticamente; **a execução de ponta a ponta no GCP não foi realizada nesta revisão**.
+- A documentação não substitui testes de execução. O pipeline completo foi executado anteriormente no ambiente do projeto; esta atualização do README não executa novamente operações no GCP.
 
 ## 11. Documentação por componente
 
 Consulte os READMEs em cada pasta para detalhes das regras, parâmetros e comportamento de cada framework. Em caso de divergência, **os scripts e JSONs versionados são a fonte de verdade**.
 
-## 12. Estrutura e publicação responsável
+## 12. Publicação responsável
 
 - O **orquestrador oficial** é `Orquestrador_Geral/orquestrador_pipeline.py`; o arquivo de mesmo nome em `framework_data_quality/` é um artefato legado de integração e **não** deve substituir o oficial.
 - O arquivo Excel está incluído para reproduzir a ingestão. **Verifique os direitos de redistribuição** antes de fazer commit público; se necessário, remova-o e disponibilize apenas instruções para obtenção de dados.
 - Nunca publique `.venv/`, credenciais, chaves de conta de serviço, `.env`, caches, arquivos locais de auditoria ou dados restritos. Consulte `.gitignore`.
-- Este ZIP contém os frameworks, **não** a aplicação Streamlit. O dashboard publicado usa snapshots CSV e deve ser versionado separadamente, caso desejado.
+- O pipeline está em `data-platform/` e o aplicativo Streamlit em `dashboard/`, ambos versionados no mesmo repositório. Os snapshots públicos ficam em `dashboard/data/`.
 - `--validar` é um teste local; `--all` realiza operações reais no BigQuery e pode gerar custos.
 
-## 13. Checklist antes do GitHub
+## 13. Checklist de manutenção do repositório
 
 1. Confirmar que o Excel pode ser publicado ou removê-lo do repositório.
 2. Conferir projeto GCP, região e caminhos nos JSONs.
 3. Rodar `python Orquestrador_Geral/orquestrador_pipeline.py --validar`.
 4. Executar SQL de provisionamento e procedure em ambiente autorizado.
-5. Executar `--all` e verificar logs, contagens e regras de qualidade.
+5. Quando houver necessidade de processamento, executar `--all` em ambiente autorizado e verificar logs, contagens e regras de qualidade; não repetir execuções apenas para testar a documentação.
 6. Verificar `.gitignore` e histórico do Git para garantir ausência de segredos.
