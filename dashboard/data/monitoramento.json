@@ -1,0 +1,370 @@
+{
+  "versao": 1,
+  "gerado_em_utc": "2026-11-13T15:36:04.805904+00:00",
+  "fonte": "brasileirao-data-platform.ds_control",
+  "execucoes": {
+    "ultima_execucao": {
+      "data_execucao": "2026-11-13T15:14:53.515712+00:00",
+      "etapa": "pipeline",
+      "status": "sucesso",
+      "possui_erro": false
+    },
+    "execucoes_recentes": [
+      {
+        "data_execucao": "2026-11-13T15:14:53.515712+00:00",
+        "etapa": "pipeline",
+        "status": "sucesso",
+        "possui_erro": false
+      },
+      {
+        "data_execucao": "2026-11-13T15:14:51.619885+00:00",
+        "etapa": "data_quality",
+        "status": "sucesso",
+        "possui_erro": false
+      },
+      {
+        "data_execucao": "2026-11-13T15:14:10.415638+00:00",
+        "etapa": "gold",
+        "status": "sucesso",
+        "possui_erro": false
+      },
+      {
+        "data_execucao": "2026-11-13T15:13:30.069270+00:00",
+        "etapa": "silver",
+        "status": "sucesso",
+        "possui_erro": false
+      },
+      {
+        "data_execucao": "2026-11-13T15:12:53.927836+00:00",
+        "etapa": "bronze",
+        "status": "sucesso",
+        "possui_erro": false
+      },
+      {
+        "data_execucao": "2026-11-13T15:08:49.266128+00:00",
+        "etapa": "bronze",
+        "status": "falha",
+        "possui_erro": true
+      },
+      {
+        "data_execucao": "2026-11-11T22:34:12.287691+00:00",
+        "etapa": "pipeline",
+        "status": "sucesso",
+        "possui_erro": false
+      },
+      {
+        "data_execucao": "2026-11-11T22:34:10.397505+00:00",
+        "etapa": "data_quality",
+        "status": "sucesso",
+        "possui_erro": false
+      },
+      {
+        "data_execucao": "2026-11-11T22:33:30.654910+00:00",
+        "etapa": "gold",
+        "status": "sucesso",
+        "possui_erro": false
+      },
+      {
+        "data_execucao": "2026-11-11T22:32:54.551799+00:00",
+        "etapa": "silver",
+        "status": "sucesso",
+        "possui_erro": false
+      },
+      {
+        "data_execucao": "2026-11-11T22:32:19.405547+00:00",
+        "etapa": "bronze",
+        "status": "sucesso",
+        "possui_erro": false
+      },
+      {
+        "data_execucao": "2026-11-11T22:22:59.367748+00:00",
+        "etapa": "pipeline",
+        "status": "sucesso",
+        "possui_erro": false
+      },
+      {
+        "data_execucao": "2026-11-11T22:22:57.579738+00:00",
+        "etapa": "data_quality",
+        "status": "sucesso",
+        "possui_erro": false
+      },
+      {
+        "data_execucao": "2026-11-11T22:22:17.128402+00:00",
+        "etapa": "gold",
+        "status": "sucesso",
+        "possui_erro": false
+      },
+      {
+        "data_execucao": "2026-11-11T22:21:40.096164+00:00",
+        "etapa": "silver",
+        "status": "sucesso",
+        "possui_erro": false
+      },
+      {
+        "data_execucao": "2026-11-11T22:21:09.123776+00:00",
+        "etapa": "bronze",
+        "status": "sucesso",
+        "possui_erro": false
+      },
+      {
+        "data_execucao": "2026-11-11T17:01:29.088963+00:00",
+        "etapa": "pipeline",
+        "status": "sucesso",
+        "possui_erro": false
+      },
+      {
+        "data_execucao": "2026-11-11T17:01:27.189299+00:00",
+        "etapa": "data_quality",
+        "status": "sucesso",
+        "possui_erro": false
+      },
+      {
+        "data_execucao": "2026-11-11T17:00:46.252514+00:00",
+        "etapa": "gold",
+        "status": "sucesso",
+        "possui_erro": false
+      },
+      {
+        "data_execucao": "2026-11-11T17:00:03.195584+00:00",
+        "etapa": "silver",
+        "status": "sucesso",
+        "possui_erro": false
+      }
+    ],
+    "colunas_detectadas": {
+      "data": "dt_fim",
+      "status": "status",
+      "etapa": "etapa"
+    },
+    "ordenacao_confiavel": true
+  },
+  "data_quality": {
+    "verificacoes_recentes": [
+      {
+        "data_execucao": "2026-11-13T15:14:48.035014+00:00",
+        "regra": "gold_forma_recente_vazia",
+        "status": "sucesso",
+        "execution_id": "faf6dea4-2b44-4090-9219-e5de533adaa3",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-13T15:14:44.656361+00:00",
+        "regra": "gold_rodada_vazia",
+        "status": "sucesso",
+        "execution_id": "faf6dea4-2b44-4090-9219-e5de533adaa3",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-13T15:14:40.275956+00:00",
+        "regra": "gold_desempenho_vazio",
+        "status": "sucesso",
+        "execution_id": "faf6dea4-2b44-4090-9219-e5de533adaa3",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-13T15:14:36.911488+00:00",
+        "regra": "gold_classificacao_vazia",
+        "status": "sucesso",
+        "execution_id": "faf6dea4-2b44-4090-9219-e5de533adaa3",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-13T15:14:33.579817+00:00",
+        "regra": "silver_placares_inconsistentes",
+        "status": "sucesso",
+        "execution_id": "faf6dea4-2b44-4090-9219-e5de533adaa3",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-13T15:14:30.438595+00:00",
+        "regra": "silver_status_invalidos",
+        "status": "sucesso",
+        "execution_id": "faf6dea4-2b44-4090-9219-e5de533adaa3",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-13T15:14:26.867286+00:00",
+        "regra": "silver_campos_obrigatorios",
+        "status": "sucesso",
+        "execution_id": "faf6dea4-2b44-4090-9219-e5de533adaa3",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-13T15:14:23.488531+00:00",
+        "regra": "silver_chaves_duplicadas",
+        "status": "sucesso",
+        "execution_id": "faf6dea4-2b44-4090-9219-e5de533adaa3",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-11T22:34:06.495892+00:00",
+        "regra": "gold_forma_recente_vazia",
+        "status": "sucesso",
+        "execution_id": "721710fe-5d93-484c-b1ca-3692735e3fc5",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-11T22:34:03.319980+00:00",
+        "regra": "gold_rodada_vazia",
+        "status": "sucesso",
+        "execution_id": "721710fe-5d93-484c-b1ca-3692735e3fc5",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-11T22:33:59.927348+00:00",
+        "regra": "gold_desempenho_vazio",
+        "status": "sucesso",
+        "execution_id": "721710fe-5d93-484c-b1ca-3692735e3fc5",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-11T22:33:57.025772+00:00",
+        "regra": "gold_classificacao_vazia",
+        "status": "sucesso",
+        "execution_id": "721710fe-5d93-484c-b1ca-3692735e3fc5",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-11T22:33:52.188242+00:00",
+        "regra": "silver_placares_inconsistentes",
+        "status": "sucesso",
+        "execution_id": "721710fe-5d93-484c-b1ca-3692735e3fc5",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-11T22:33:49.212968+00:00",
+        "regra": "silver_status_invalidos",
+        "status": "sucesso",
+        "execution_id": "721710fe-5d93-484c-b1ca-3692735e3fc5",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-11T22:33:45.913842+00:00",
+        "regra": "silver_campos_obrigatorios",
+        "status": "sucesso",
+        "execution_id": "721710fe-5d93-484c-b1ca-3692735e3fc5",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-11T22:33:42.571491+00:00",
+        "regra": "silver_chaves_duplicadas",
+        "status": "sucesso",
+        "execution_id": "721710fe-5d93-484c-b1ca-3692735e3fc5",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-11T22:22:54.193742+00:00",
+        "regra": "gold_forma_recente_vazia",
+        "status": "sucesso",
+        "execution_id": "a6cb50ea-fc16-4a1d-bbc5-dca373652961",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-11T22:22:50.813112+00:00",
+        "regra": "gold_rodada_vazia",
+        "status": "sucesso",
+        "execution_id": "a6cb50ea-fc16-4a1d-bbc5-dca373652961",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-11T22:22:47.429239+00:00",
+        "regra": "gold_desempenho_vazio",
+        "status": "sucesso",
+        "execution_id": "a6cb50ea-fc16-4a1d-bbc5-dca373652961",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-11T22:22:44.112978+00:00",
+        "regra": "gold_classificacao_vazia",
+        "status": "sucesso",
+        "execution_id": "a6cb50ea-fc16-4a1d-bbc5-dca373652961",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-11T22:22:41.079949+00:00",
+        "regra": "silver_placares_inconsistentes",
+        "status": "sucesso",
+        "execution_id": "a6cb50ea-fc16-4a1d-bbc5-dca373652961",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-11T22:22:36.625054+00:00",
+        "regra": "silver_status_invalidos",
+        "status": "sucesso",
+        "execution_id": "a6cb50ea-fc16-4a1d-bbc5-dca373652961",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-11T22:22:32.998771+00:00",
+        "regra": "silver_campos_obrigatorios",
+        "status": "sucesso",
+        "execution_id": "a6cb50ea-fc16-4a1d-bbc5-dca373652961",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-11T22:22:29.316475+00:00",
+        "regra": "silver_chaves_duplicadas",
+        "status": "sucesso",
+        "execution_id": "a6cb50ea-fc16-4a1d-bbc5-dca373652961",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-11T17:01:23.730881+00:00",
+        "regra": "gold_forma_recente_vazia",
+        "status": "sucesso",
+        "execution_id": "fdc97054-33f2-4e7e-9131-6357ce3cc8dd",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-11T17:01:20.394115+00:00",
+        "regra": "gold_rodada_vazia",
+        "status": "sucesso",
+        "execution_id": "fdc97054-33f2-4e7e-9131-6357ce3cc8dd",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-11T17:01:16.414216+00:00",
+        "regra": "gold_desempenho_vazio",
+        "status": "sucesso",
+        "execution_id": "fdc97054-33f2-4e7e-9131-6357ce3cc8dd",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-11T17:01:13.062526+00:00",
+        "regra": "gold_classificacao_vazia",
+        "status": "sucesso",
+        "execution_id": "fdc97054-33f2-4e7e-9131-6357ce3cc8dd",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-11T17:01:09.598866+00:00",
+        "regra": "silver_placares_inconsistentes",
+        "status": "sucesso",
+        "execution_id": "fdc97054-33f2-4e7e-9131-6357ce3cc8dd",
+        "violacoes": 0
+      },
+      {
+        "data_execucao": "2026-11-11T17:01:05.148428+00:00",
+        "regra": "silver_status_invalidos",
+        "status": "sucesso",
+        "execution_id": "fdc97054-33f2-4e7e-9131-6357ce3cc8dd",
+        "violacoes": 0
+      }
+    ],
+    "colunas_detectadas": {
+      "data": "started_at",
+      "status": "status",
+      "regra": "rule_name",
+      "lote": "execution_id"
+    },
+    "resumo_lote": {
+      "execution_id": "faf6dea4-2b44-4090-9219-e5de533adaa3",
+      "total": 8,
+      "aprovadas": 8,
+      "reprovadas": 0,
+      "indisponiveis": 0
+    },
+    "observacao": "Resumo do último lote identificado; não representa necessariamente o lote da última execução geral."
+  },
+  "avisos": []
+}
