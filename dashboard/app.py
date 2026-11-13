@@ -79,10 +79,89 @@ with st.sidebar:
     season = st.selectbox('Temporada', seasons)
     if st.button('Atualizar dados'):
         load_table.clear()
+        load_monitoramento.clear()
         st.rerun()
     st.caption('Dados em cache por {} minutos. Fonte: {}.'.format(TTL // 60, 'snapshot CSV' if MODE == 'csv' else 'BigQuery'))
 
-page = st.sidebar.radio('Página', ['Classificação', 'Mandante x Visitante', 'Evolução por rodada', 'Forma recente'])
+page = st.sidebar.radio('Página', ['Monitoramento', 'Classificação', 'Mandante x Visitante', 'Evolução por rodada', 'Forma recente'], index=0)
+
+@st.cache_data(ttl=TTL)
+def load_monitoramento():
+    path = BASE / 'data' / 'monitoramento.json'
+    if not path.exists():
+        return None
+    return json.loads(path.read_text(encoding='utf-8'))
+
+
+def status_label(value):
+    return {'sucesso': 'Sucesso', 'falha': 'Falha', 'em_execucao': 'Em execução',
+            'indisponivel': 'Indisponível'}.get(value, 'Indisponível')
+
+
+def format_brasilia(value):
+    if not value:
+        return 'Indisponível'
+    try:
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+        dt = datetime.fromisoformat(str(value).replace('Z', '+00:00'))
+        if dt.tzinfo is None:
+            return 'Indisponível'
+        return dt.astimezone(ZoneInfo('America/Sao_Paulo')).strftime('%d/%m/%Y %H:%M:%S')
+    except (ValueError, TypeError, KeyError):
+        return 'Indisponível'
+
+def show_monitoramento():
+    st.subheader('MONITORAMENTO • PIPELINE E QUALIDADE')
+    st.caption('Retrato exportado do BigQuery. Não é monitoramento em tempo real.')
+    metadata = load_monitoramento()
+    if metadata is None:
+        st.info('Execute localmente: python exportar_monitoramento.py')
+        return
+    st.caption('Metadados exportados em: {} (Brasília)'.format(format_brasilia(metadata.get('gerado_em_utc'))))
+    execution = metadata.get('execucoes') or {}
+    recent = execution.get('ultima_execucao') or {}
+    quality = metadata.get('data_quality') or {}
+    summary = quality.get('resumo_lote')
+    a, b, c = st.columns(3)
+    a.metric('Status do pipeline', status_label(recent.get('status')))
+    b.metric('DQ aprovadas', summary.get('aprovadas', 0) if summary else '—')
+    c.metric('DQ reprovadas', summary.get('reprovadas', 0) if summary else '—')
+    st.caption('Última execução registrada: {} (Brasília)'.format(format_brasilia(recent.get('data_execucao'))))
+    if summary is None:
+        st.info('Não foi possível identificar o último lote de Data Quality.')
+    if recent.get('status') == 'falha':
+        st.error('A última execução registrada indica falha.')
+    elif recent.get('status') != 'sucesso':
+        st.warning('Não foi possível confirmar sucesso da última execução.')
+    if summary and summary['reprovadas']:
+        st.error('Existem verificações reprovadas no último lote de Data Quality identificado.')
+    if not execution.get('ordenacao_confiavel', False):
+        st.warning('A ordem das execuções não está validada.')
+    st.markdown('#### Execuções recentes')
+    executions = execution.get('execucoes_recentes') or []
+    if executions:
+        df = pd.DataFrame(executions)
+        df['data_execucao'] = df['data_execucao'].map(format_brasilia)
+        df['status'] = df['status'].map(status_label)
+        df['possui_erro'] = df['possui_erro'].map({True: 'Sim', False: 'Não'}).fillna('Indisponível')
+        st.dataframe(df.rename(columns={'data_execucao': 'Data/hora (Brasília)', 'etapa': 'Etapa', 'status': 'Status', 'possui_erro': 'Possui erro'}), use_container_width=True, hide_index=True)
+    else:
+        st.info('Nenhuma execução disponível.')
+    st.markdown('#### Data Quality • verificações recentes')
+    checks = quality.get('verificacoes_recentes') or []
+    if checks:
+        df = pd.DataFrame(checks)
+        df['data_execucao'] = df['data_execucao'].map(format_brasilia)
+        df['status'] = df['status'].map(status_label)
+        cols = [c for c in ['data_execucao', 'regra', 'status', 'violacoes'] if c in df.columns]
+        st.dataframe(df[cols].rename(columns={'data_execucao': 'Data/hora (Brasília)', 'regra': 'Regra', 'status': 'Status', 'violacoes': 'Violações'}), use_container_width=True, hide_index=True)
+        st.caption('Registros recentes podem pertencer a diferentes execuções.')
+    else:
+        st.info('Nenhuma verificação disponível.')
+    for warning in metadata.get('avisos') or []:
+        st.warning(warning)
+    st.caption('Atualizar dados recarrega snapshots publicados; não executa o pipeline nem consulta o BigQuery.')
 
 if page == 'Classificação':
     st.subheader('CLASSIFICAÇÃO GERAL')
@@ -131,6 +210,9 @@ elif page == 'Evolução por rodada':
         fig.update_layout(paper_bgcolor='#101827', plot_bgcolor='#101827', font_color='#f8fafc', height=520)
         st.plotly_chart(fig, use_container_width=True)
         st.caption('Evolução registrada nas rodadas com partidas finalizadas.')
+
+elif page == 'Monitoramento':
+    show_monitoramento()
 
 elif page == 'Forma recente':
     st.subheader('FORMA RECENTE • ÚLTIMOS CINCO JOGOS')
