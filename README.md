@@ -8,7 +8,7 @@
 
 **[Acessar o dashboard](https://brasileirao-data-analytics.streamlit.app/)** · **[Explorar o repositório](https://github.com/fermiola/brasileirao-analytics)** · **[Documentação técnica da plataforma](data-platform/README.md)**
 
-> O dashboard público utiliza snapshots CSV gerados a partir da camada Gold. Assim, a navegação dos visitantes não exige consultas ao BigQuery.
+> O dashboard público utiliza snapshots CSV da camada Gold e um snapshot JSON de monitoramento exportado de `ds_control`. A navegação dos visitantes não consulta o BigQuery. O monitoramento representa o último retrato publicado, **não** o estado em tempo real.
 
 ## Visão geral
 
@@ -18,23 +18,29 @@ A solução separa o processamento dos dados da camada de apresentação. Os fra
 
 ```mermaid
 flowchart TD
-    A[Planilha Excel de partidas] --> B[Python: Framework Bronze]
-    B --> C[(BigQuery: ds_bronze)]
-    C --> D[Python + SQL: Framework Silver]
-    D --> E[(BigQuery: ds_silver)]
-    E --> F[Python + SQL: Framework Gold]
-    F --> G[(BigQuery: ds_gold)]
-    G --> H[Exportação de snapshots CSV]
-    H --> I[Dashboard Streamlit]
+    A[Planilha Excel de partidas] --> B[Framework Bronze]
+    B --> C[(BigQuery ds_bronze)]
+    C --> D[Framework Silver]
+    D --> E[(BigQuery ds_silver)]
+    E --> F[Framework Gold]
+    F --> G[(BigQuery ds_gold)]
     J[Orquestrador Geral] -. coordena .-> B
     J -. coordena .-> D
     J -. coordena .-> F
-    J -. executa .-> K[Framework Data Quality]
-    K -. verifica .-> E
-    K -. verifica .-> G
-    J -. registra execução .-> L[(BigQuery: ds_control)]
+    J -. executa .-> K[Data Quality]
+    K -. valida .-> E
+    K -. valida .-> G
+    J -. registra execucoes .-> L[(BigQuery ds_control)]
     K -. registra auditoria .-> L
+    G --> M[Exportador Gold]
+    M --> N[Snapshots CSV]
+    L --> O[Exportador de monitoramento]
+    O --> P[Snapshot JSON]
+    N --> Q[Publicacao manual no GitHub]
+    P --> Q
+    Q --> R[Dashboard Streamlit Cloud]
 ```
+
 
 ### Camadas da plataforma
 
@@ -45,16 +51,19 @@ flowchart TD
 | **Gold** | Geração das tabelas analíticas utilizadas nos indicadores |
 | **Data Quality** | Execução de regras de qualidade e registro dos resultados de auditoria |
 | **Orquestrador Geral** | Execução sequencial dos frameworks e registro de status das etapas |
-| **Streamlit** | Exploração visual dos dados analíticos |
+| **Exportadores** | Geração local dos snapshots CSV da Gold e JSON do monitoramento |
+| **Orquestrador do dashboard** | Executa a exportação de monitoramento e inicia o Streamlit local, sem rodar o pipeline de dados |
+| **Streamlit** | Exploração visual dos dados analíticos e do último retrato de monitoramento publicado |
 
 ## Dashboard interativo
 
-O aplicativo disponibiliza quatro visões:
+O aplicativo disponibiliza **cinco páginas**, com Monitoramento como página inicial:
 
-1. **Classificação:** acompanhamento da tabela do campeonato.
-2. **Mandante x Visitante:** comparação do desempenho dos clubes em casa e fora.
-3. **Evolução por rodada:** análise da trajetória dos indicadores ao longo do campeonato.
-4. **Forma recente:** visualização do desempenho nas partidas mais recentes.
+1. **Monitoramento:** última execução registrada, status das etapas e verificações de Data Quality do último lote identificado.
+2. **Classificação:** acompanhamento da tabela do campeonato.
+3. **Mandante x Visitante:** comparação do desempenho dos clubes em casa e fora.
+4. **Evolução por rodada:** análise da trajetória dos indicadores ao longo do campeonato.
+5. **Forma recente:** visualização do desempenho nas partidas mais recentes.
 
 **Dashboard:** https://brasileirao-data-analytics.streamlit.app/
 
@@ -79,8 +88,10 @@ brasileirao-analytics/
 │   ├── app.py                   # Aplicação Streamlit
 │   ├── config.json              # Configuração de leitura
 │   ├── exportar_gold.py         # Exportação local da Gold
+│   ├── exportar_monitoramento.py # Exportação local dos logs e DQ
+│   ├── orquestrador_dashboard.py # Exporta monitoramento e inicia Streamlit
 │   ├── requirements.txt         # Dependências do dashboard
-│   ├── data/                    # Quatro snapshots CSV
+│   ├── data/                    # Quatro snapshots CSV e monitoramento.json
 │   └── README.md                # Guia do dashboard
 ├── data-platform/
 │   ├── README.md                # Guia técnico da plataforma
@@ -107,6 +118,14 @@ python -m pip install -r requirements.txt
 python -m streamlit run app.py
 ```
 
+Para **atualizar o monitoramento e iniciar o dashboard local em sequência**, com autenticação e acesso ao BigQuery configurados, use na pasta `dashboard/`:
+
+```powershell
+python orquestrador_dashboard.py
+```
+
+Esse orquestrador executa `exportar_monitoramento.py` e depois inicia o Streamlit. **Não** executa Bronze, Silver, Gold ou Data Quality e **não** publica arquivos no GitHub. A exportação exige `google-cloud-bigquery` instalado no ambiente Python utilizado.
+
 Se usar Google Cloud SDK Shell ou outro terminal com ambiente virtual já ativado, não precisa criar outro. Em `dashboard/config.json`, `"data_mode": "csv"` utiliza os snapshots locais. Consulte o [guia do dashboard](dashboard/README.md) para exportação e modo BigQuery.
 
 **Aplicativo publicado:** [Brasileirão Data Analytics](https://brasileirao-data-analytics.streamlit.app/) — arquivo principal `dashboard/app.py` na branch `main`.
@@ -122,15 +141,18 @@ cd Orquestrador_Geral
 python orquestrador_pipeline.py --validar
 ```
 
-O comando `--validar` verifica a configuração local sem executar o pipeline no GCP. Para processamento real, consulte primeiro o [guia técnico da plataforma](data-platform/README.md), incluindo provisionamento dos datasets, autenticação e custos. A execução completa utiliza `--all`.
+O modo `--validar` deve ser utilizado conforme a documentação e o comportamento da versão instalada do orquestrador; **não assuma que ele é uma checagem puramente local ou sem acesso a serviços externos**. Para processamento completo, consulte o [guia técnico da plataforma](data-platform/README.md), incluindo autenticação, provisionamento e custos. A execução completa utiliza `--all`.
 
 ## Atualização dos dados
 
-O dashboard publicado consome snapshots CSV. Após atualizar a camada Gold:
+O dashboard publicado consome **quatro snapshots CSV e um JSON de monitoramento**. O pipeline de dados é executado separadamente da aplicação. Quando quiser atualizar os arquivos publicados:
 
-1. Na pasta `dashboard/`, execute localmente `python exportar_gold.py` com autenticação e permissões BigQuery configuradas.
-2. Revise os CSVs gerados em `dashboard/data/` e verifique se podem ser publicados.
-3. Atualize os arquivos no GitHub para refletir os novos dados no aplicativo.
+1. Após atualizar a Gold, execute `python exportar_gold.py` na pasta `dashboard/`, com autenticação e permissões BigQuery configuradas, para gerar os CSVs.
+2. Execute `python exportar_monitoramento.py` para gerar `dashboard/data/monitoramento.json` com os registros de execução e Data Quality disponíveis em `ds_control`. Alternativamente, `python orquestrador_dashboard.py` faz essa exportação e inicia o dashboard local.
+3. Revise os CSVs e o JSON, verificando se contêm apenas dados apropriados para divulgação pública.
+4. Envie **manualmente** os snapshots alterados para `dashboard/data/` no GitHub e faça o commit. O Streamlit Cloud utiliza os arquivos da versão implantada.
+
+A data de exportação do JSON e a data da última execução do pipeline são informações distintas. O status exibido corresponde ao **último snapshot publicado**; falhas posteriores à exportação não aparecem até a próxima atualização.
 
 **Importante:** o modo CSV evita consultas ao BigQuery durante o acesso público, mas a execução do pipeline e a exportação local podem consumir recursos cobrados do Google Cloud.
 
@@ -139,13 +161,15 @@ O dashboard publicado consome snapshots CSV. Após atualizar a camada Gold:
 - Separação das responsabilidades de ingestão, tratamento, modelagem e apresentação.
 - Regras de qualidade para chaves, campos obrigatórios, status, placares e disponibilidade das tabelas Gold.
 - Registro de execuções e auditorias no dataset de controle.
+- Monitoramento publicado por snapshot JSON, incluindo status da última execução registrada e resultados de Data Quality; o conjunto atual contempla oito regras de verificação.
+- Separação explícita entre o horário da execução e o horário da exportação do snapshot.
 - Configurações externalizadas em arquivos JSON.
 - Proteção contra reingestão desnecessária de arquivos idênticos na Bronze.
 - Execução do pipeline desacoplada do acesso público ao dashboard.
 
 ## Segurança e publicação
 
-Não publique `.venv/`, chaves de serviço, tokens, credenciais ou arquivos `.env`. Revise os JSONs antes de enviá-los. Os CSVs da pasta `dashboard/data/` e quaisquer planilhas incluídas no repositório tornam-se acessíveis publicamente. O `.gitignore` não impede o envio manual de arquivos pela interface do GitHub.
+Não publique `.venv/`, chaves de serviço, tokens, credenciais ou arquivos `.env`. Revise os JSONs antes de enviá-los. Os CSVs e o JSON de `dashboard/data/` e quaisquer planilhas incluídas no repositório tornam-se acessíveis publicamente. Revise também eventuais mensagens de erro, identificadores e metadados antes de publicar o JSON. O `.gitignore` não impede o envio manual de arquivos pela interface do GitHub.
 
 ## Documentação
 
